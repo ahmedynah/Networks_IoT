@@ -1,12 +1,13 @@
+// const { countReset } = require("console");
+
 // Create a new date instance dynamically with JS
 base_URL = "localhost:3000";
-let d = new Date();
-let newDate = d.getMonth()+ 1 + '.'+ d.getDate()+'.'+ d.getFullYear();
-let GasReading;  
+
+const counters = document.querySelectorAll('.counter');
 
 performAction = (e) => {  
     console.log("in");
-    GasReading = document.querySelectorAll("li p span");
+
     postData("/add")
     .then(
         updateUI()
@@ -16,42 +17,32 @@ performAction = (e) => {
     
     
     const updateUI = async () => {
-        const request = await fetch("/api");
+        const request = await fetch("https://api.thingspeak.com/channels/1277610/feeds.json");
         try{
             const Data = await request.json();
-            console.log("api response: ",Data.value);
-            if(Data.value){
-                for(label of GasReading){
-                    console.log(label.innerHTML);
-                    label.innerHTML =  "ON";
-                }
-            }
-            else{
+            console.log(Data);
+            console.log("api response: ",Data.feeds[99].field1);
+            let count = 0;
+                for(label of counters){
+                    if(count === 0){
+                        
+                        label.setAttribute("data-target", Data.feeds[99].field1) ;
+                        console.log(label.innerHTML);
+                        count ++;
+                        continue;                        
+                    }
 
-                for(label of GasReading){
-                    console.log(label.innerHTML);
-                    label.innerHTML = "OFF";
+                    if( count === 1){
+                        label.setAttribute("data-target", Data.feeds[99].field2) ;
+                        console.log(label.innerHTML);   
+                    }
                 }
-            }
                 
         }catch(error){
             console.log("error", error);
         }
     }
-    
-    // /** Async Function to get data from weather API */
-    // getData = async (base, zipCode, API) =>{
-        
-        //     const response = await fetch(base + zipCode + API);
-        //     try{
-            //         const data = await response.json();
-            //         //console.log(data.main.temp);
-            //         return data;
-            //     }
-            //     catch(error){
-                //         console.log("error", error);
-                //     }
-                // }
+
                 
                 /**Async Function to post data */
                 postData = async (url='',data={}) =>{
